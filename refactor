@@ -1,11 +1,22 @@
 -Mô tả mục tiêu của đoạn code
+ Thêm nhiệm vụ mới và kiểm tra nhiệm vụ mới có bị trùng lặp với nhiệm vụ khác.
 
 -Chỉ ra các vấn đề của đoạn code ban đầu: vi phạm nguyên tắc nào?.
-
+ + phương thức addNewTaskWithViolations Vi phạm nguyên tắc SRP vì làm quá nhiều nhiệm vụ
+ + Thuộc tính ID vi phạm phương thức Yagni vì tạo random sẽ khó xác định và khó nhớ thứ tự nhiệm vụ
+ + Thuộc tính isRecurring vi phạm phương thức Yagni vì chưa có chức năng xử lý nhiệm vụ lặp lại
 -Giải thích các nguyên tắc đã áp dụng
-
+ Áp dụng nguyên tắc SRP để mỗi phương thức con có một trách nhiệm duy nhất, làm cho mã dễ hiểu, dễ kiểm tra và dễ bảo trì hơn.
+ Áp dụng nguyên tắc Yagni để thuộc tính ID trở nên đơn giản và dễ hiểu hơn, dễ sắp xếp và nhớ thứ tự.
+ Áp dụng nguyên tắc Yagni thêm chức năng cho thuộc tính isRecurring để thuộc tính này không trở nên dư thừa.
 -Các bước refactor cụ thể
+ B1: Tách phương thức addNewTaskWithViolations thành các phương thức con(validateTaskInput, checkDuplicateTask) làm những nhiệm vụ khác nhau
+ B2: Sửa thuộc tính ID từ tự động khởi tạo id từ số nguyên tăng dần
+ B3: Thêm chức năng xử lý cho thuộc tính isRecurring
 
 -Giải thích lý do cho từng thay đổi.
-
+ Tách phương thức addNewTaskWithViolations thành nhiều phương thức để làm cho phương thức độc lập, dễ xác định khi xảy ra lỗi và dễ chỉnh sửa.
+ Sửa thuộc tính ID khởi tạo id từ số nguyên tăng dần giúp dễ quản lí thứ tự nhiệm vụ và vị trí sắp xếp nhiệm vụ
+ Thêm chức năng cho thuộc tính isRecurring để không bị dư thừa và có nhiệm vụ riêng
 -So sánh đoạn code trước và sau refactor để thấy sự cải thiện.
+ 
