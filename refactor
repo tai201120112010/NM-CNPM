@@ -19,4 +19,8 @@
  Sửa thuộc tính ID khởi tạo id từ số nguyên tăng dần giúp dễ quản lí thứ tự nhiệm vụ và vị trí sắp xếp nhiệm vụ
  Thêm chức năng cho thuộc tính isRecurring để không bị dư thừa và có nhiệm vụ riêng
 -So sánh đoạn code trước và sau refactor để thấy sự cải thiện.
- 
+  + Đoạn code trước khi áp dụng các nguyên tắc:
+    - Khó đọc, khó xác định nhiệm vụ chính của phương thức, khó bảo trì và thêm tính năng, khi xảy ra bug, khó sửa bug vì sẽ ảnh hưởng đến những tính năng khác.
+  + Đoạn code sau khi áp dụng các nguyên tắc:
+    - Dễ đọc hơn, dễ nhận biết nhiệm vụ chính của phương thức, dễ bảo trì và thêm chức năng, khi xảy ra bug, dễ sửa bug vì không ảnh hưởng đến nhiệm vụ của
+      những phương thức khác.
