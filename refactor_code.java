@@ -153,7 +153,7 @@ public class PersonalTaskManagerViolations {
         newTask.put("last_updated_at", LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME));
         newTask.put("is_recurring", isRecurring);
         if (isRecurring) {
-            newTask.put("recurrence_pattern", "DAILY");
+            newTask.put("recurrence_pattern", "Recurring");
         }
 
         tasks.add(newTask);
@@ -165,86 +165,7 @@ public class PersonalTaskManagerViolations {
         return newTask;
     }
 
-    /**
-     * Phương thức hoàn thành một nhiệm vụ và tạo phiên bản tiếp theo nếu nó là nhiệm vụ lặp lại.
-     *
-     * @param taskId ID của nhiệm vụ cần hoàn thành.
-     * @return JSONObject của nhiệm vụ mới được tạo (nếu có), hoặc null.
-     */
-    public JSONObject completeTaskAndGenerateNextInstance(long taskId) {
-        JSONArray tasks = loadTasksFromDb();
-        JSONObject completedTask = null;
-
-        // Tìm nhiệm vụ cần hoàn thành
-        for (int i = 0; i < tasks.size(); i++) {
-            JSONObject task = (JSONObject) tasks.get(i);
-            Object idObj = task.get("id");
-            if (idObj instanceof Number && ((Number) idObj).longValue() == taskId) {
-                completedTask = task;
-                break;
-            }
-        }
-
-        if (completedTask == null) {
-            System.out.println(String.format("Lỗi: Không tìm thấy nhiệm vụ với ID: %d", taskId));
-            return null;
-        }
-
-        // Cập nhật trạng thái nhiệm vụ hiện tại thành "Hoàn thành"
-        completedTask.put("status", "Hoàn thành");
-        completedTask.put("last_updated_at", LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME));
-        System.out.println(String.format("Nhiệm vụ ID %d ('%s') đã được đánh dấu là 'Hoàn thành'.",
-                                         taskId, completedTask.get("title")));
-
-        boolean isRecurring = (boolean) completedTask.getOrDefault("is_recurring", false);
-        if (isRecurring) {
-            String recurrencePattern = (String) completedTask.getOrDefault("recurrence_pattern", "DAILY"); // <--- SỬA ĐỔI: Mặc định là DAILY nếu không có
-            LocalDate currentDueDate = LocalDate.parse((String) completedTask.get("due_date"), DATE_FORMATTER);
-            LocalDate newDueDate = null;
-
-            // Tính toán ngày đến hạn mới dựa trên mẫu lặp lại
-            switch (recurrencePattern.toUpperCase()) {
-                case "DAILY":
-                    newDueDate = currentDueDate.plusDays(1);
-                    break;
-                case "WEEKLY":
-                    newDueDate = currentDueDate.plusWeeks(1);
-                    break;
-                case "MONTHLY":
-                    newDueDate = currentDueDate.plusMonths(1);
-                    break;
-                default:
-                    System.out.println(String.format("Cảnh báo: Mẫu lặp lại không xác định '%s' cho nhiệm vụ ID %d. Không tạo phiên bản mới.",
-                                                     recurrencePattern, taskId));
-                    saveTasksToDb(tasks);
-                    return null;
-            }
-
-            // Tạo một phiên bản nhiệm vụ mới
-            JSONObject nextInstanceTask = new JSONObject();
-            nextInstanceTask.put("id", this.nextTaskId++);
-            nextInstanceTask.put("title", completedTask.get("title"));
-            nextInstanceTask.put("description", completedTask.get("description"));
-            nextInstanceTask.put("due_date", newDueDate.format(DATE_FORMATTER));
-            nextInstanceTask.put("priority", completedTask.get("priority"));
-            nextInstanceTask.put("status", "Chưa hoàn thành"); // Phiên bản mới bắt đầu là chưa hoàn thành
-            nextInstanceTask.put("created_at", LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME));
-            nextInstanceTask.put("last_updated_at", LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME));
-            nextInstanceTask.put("is_recurring", true); // Phiên bản mới vẫn là lặp lại
-            nextInstanceTask.put("recurrence_pattern", recurrencePattern);
-
-            tasks.add(nextInstanceTask); // Thêm nhiệm vụ mới vào danh sách
-            saveTasksToDb(tasks); // Lưu toàn bộ danh sách đã cập nhật
-
-            System.out.println(String.format("Đã tạo phiên bản tiếp theo của nhiệm vụ '%s' với ID mới: %d, ngày đến hạn: %s",
-                                             nextInstanceTask.get("title"), nextInstanceTask.get("id"), newDueDate.format(DATE_FORMATTER)));
-            return nextInstanceTask;
-        } else {
-            saveTasksToDb(tasks); // Lưu trạng thái hoàn thành nếu không lặp lại
-            System.out.println(String.format("Nhiệm vụ ID %d không phải là nhiệm vụ lặp lại. Không tạo phiên bản mới.", taskId));
-            return null;
-        }
-    }
+           
 
     public static void main(String[] args) {
         PersonalTaskManagerViolations manager = new PersonalTaskManagerViolations();
@@ -283,14 +204,4 @@ public class PersonalTaskManagerViolations {
             "Thấp",
             false
         );
-
-        System.out.println("\n--- Hoàn thành nhiệm vụ 'Tập thể dục' và tạo phiên bản tiếp theo ---");
-        if (recurringTask != null) {
-            manager.completeTaskAndGenerateNextInstance((long) recurringTask.get("id"));
-        }
-
-        System.out.println("\n--- Hoàn thành nhiệm vụ 'Mua sách' (không lặp lại) ---");
-        // Giả sử ID của nhiệm vụ "Mua sách" là 1 (nếu nó được thêm thành công đầu tiên)
-        manager.completeTaskAndGenerateNextInstance(1L);
-    }
 }
